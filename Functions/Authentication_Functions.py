@@ -40,7 +40,7 @@ def authenticate_user(username,password):
     username = username.strip()
 
     user = db.session.execute(
-        db.select(User).filter(username == username)
+        db.select(User).filter(User.username == username)
     ).scalar_one_or_none()
 
     if not user:
