@@ -1,7 +1,0 @@
-Flask
-Flask-SQLAlchemy
-python-dotenv
-Flask-Login
-Flask-WTF
-python-dotenv
-openpyxl
