@@ -10,7 +10,7 @@ class User(UserMixin,db.Model):
 
     username = db.Column(db.String(100),unique=True,nullable=False)
 
-    password = db.Column(db.String(100),nullable=False)
+    password = db.Column(db.String(512),nullable=False)
 
 class Parts(db.Model):
     __tablename__ = "parts"

@@ -20,14 +20,16 @@ def register():
                 registration_pin = registration_pin,
                 correct_pin=current_app.config.get("REGISTRATION_PIN")
             )
+            if success:
+                flash(message, "success")
+                return redirect(url_for("auth.login"))
+            flash(message, "error")
+
         except Exception:
             current_app.logger.exception("User registration failed")
-            flash(message,"error")
-            return render_template("register.html")
+            flash("Registration failed. Please try again.", "error")
 
-        if success:
-            flash(message,"success")
-            return redirect(url_for("auth.login"))
+
 
     return render_template("register.html")
 
