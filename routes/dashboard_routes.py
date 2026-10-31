@@ -71,7 +71,7 @@ def search_parts():
                            parts=parts,
                            search_performed=True)
 
-@dash.route("/part/<string:part_id>/edit",methods=["GET","POST"])
+@dash.route("/part/<path:part_id>/edit",methods=["GET","POST"])
 @login_required
 def edit_part(part_id):
     part = get_part_by_part_id(part_id)
@@ -130,7 +130,7 @@ def update_stock():
 
     return redirect(url_for("auth.dashboard"))
 
-@dash.route("/part/<string:part_id>/delete",methods=["POST"])
+@dash.route("/part/<path:part_id>/delete",methods=["POST"])
 @login_required
 def delete_part(part_id):
 
