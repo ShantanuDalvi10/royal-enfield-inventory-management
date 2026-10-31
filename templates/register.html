@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+
+<div class="register-page">
+    <div class="auth-card">
+
+        <h1>ROYAL ENFIELD</h1>
+        <p class="subtitle">Create Shopkeeper Account</p>
+
+        <form method="POST" action="{{ url_for('auth.register') }}">
+
+            <div class="mb-3">
+                <label for="username" class="form-label">
+                    Username
+                </label>
+
+                <input
+                    type="text"
+                    class="form-control"
+                    id="username"
+                    name="username"
+                    maxlength="50"
+                    autocomplete="username"
+                    value="{{ request.form.get('username', '') }}"
+                    required
+                >
+            </div>
+
+            <div class="mb-3">
+                <label for="password" class="form-label">
+                    Password
+                </label>
+
+                <input
+                    type="password"
+                    class="form-control"
+                    id="password"
+                    name="password"
+                    minlength="8"
+                    autocomplete="new-password"
+                    required
+                >
+            </div>
+
+            <div class="mb-4">
+                <label for="registration_pin" class="form-label">
+                    Shop Registration PIN
+                </label>
+
+                <input
+                    type="password"
+                    class="form-control"
+                    id="registration_pin"
+                    name="registration_pin"
+                    autocomplete="off"
+                    required
+                >
+
+                <small class="form-text">
+                    Enter the private PIN provided by the shop owner.
+                </small>
+            </div>
+
+            <button type="submit" class="btn btn-danger w-100">
+                Register
+            </button>
+
+        </form>
+
+        <p class="text-center mt-4 mb-0">
+            Already registered?
+            <a href="{{ url_for('auth.login') }}">Login here</a>
+        </p>
+
+    </div>
+</div>
+
+{% endblock %}

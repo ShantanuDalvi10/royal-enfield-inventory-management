@@ -1,0 +1,53 @@
+
+{% extends "base.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="login-page">
+    <div class="auth-card">
+
+        <h1>ROYAL ENFIELD</h1>
+        <p class="subtitle">Spare Parts Stock Management</p>
+
+        <form method="POST" action="{{ url_for('auth.login') }}">
+
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    class="form-control"
+                    autocomplete="username"
+                    required
+                >
+            </div>
+
+            <div class="mb-4">
+                <label for="password" class="form-label">Password</label>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    class="form-control"
+                    autocomplete="current-password"
+                    required
+                >
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-danger flex-fill">
+                    Login
+                </button>
+
+                <a href="{{ url_for('auth.register') }}"
+                   class="btn btn-outline-secondary flex-fill">
+                    Register
+                </a>
+            </div>
+
+        </form>
+    </div>
+</div>
+{% endblock %}
