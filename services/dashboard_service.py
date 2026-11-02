@@ -1,27 +1,24 @@
 from models import db,Parts
+from services.validators import validate_price_and_stock
 
 def add_part(part_id,part_name,price,stock):
     part_id = part_id.strip()
     part_name = part_name.strip()
 
     if not part_id or not part_name:
-        return False,"Please entered the required fields."
+        raise ValueError("Please enter all required fields.")
 
     if len(part_id) > 50 or len(part_name) > 100:
-        return False, "Price or Part_ID cannot be too long."
+        raise ValueError("Part ID or Part Name is too long.")
 
-    if stock < 0:
-        return False,"Stock cannot be negative."
-
-    if price < 0:
-        return False, "Price cannot be negatve."
+    price, stock = validate_price_and_stock(price, stock)
 
     existing_part = db.session.execute(
         db.select(Parts).filter(Parts.part_id==part_id)
     ).scalar_one_or_none()
 
     if existing_part:
-        return False, "Part is already existed"
+        raise ValueError("Part already exists.")
 
     new_part = Parts(
         part_id=part_id,
@@ -37,31 +34,35 @@ def add_part(part_id,part_name,price,stock):
         db.session.rollback()
         raise
 
-    return True, "New part added successfully."
 
-def get_all_parts():
-    return db.session.execute(
-        db.select(Parts).order_by(Parts.id.asc())
-    ).scalars().all()
 
-def search_part(search_value):
+def get_all_parts(page=1,per_page=10):
+    return db.paginate(
+        db.select(Parts).order_by(Parts.id.asc()),
+        page=page,
+        per_page=per_page,
+        error_out=False
+    )
+
+def search_part(search_value,page=1,per_page=10):
     search_value = search_value.strip()
 
     if not search_value:
         return None
 
-    part = db.session.execute(
-        db.select(Parts).filter(Parts.part_id==search_value)
-    ).scalar_one_or_none()
+    query = db.select(Parts).filter(
+        db.or_(
+            Parts.part_id == search_value,
+            Parts.part_name.ilike(f"%{search_value}%")
+        )
+    ).order_by(Parts.id.asc())
 
-    if part is not None:
-        return part
-
-    part = db.session.execute(
-        db.select(Parts).filter(Parts.part_name.ilike(f"%{search_value}%"))
-    ).scalars().first()
-
-    return part
+    return db.paginate(
+        query,
+        page=page,
+        per_page=per_page,
+        error_out=False
+    )
 
 
 def get_part_by_part_id(part_id):
@@ -75,25 +76,24 @@ def edit_part(old_part_id,new_part_id,part_name,price,stock):
     part_name=part_name.strip()
 
     if not old_part_id or not new_part_id or not part_name:
-        return False,"All fiels are required."
+        raise ValueError("All fields are required.")
 
     if len(new_part_id) > 50 or len(part_name) > 100:
-        return False,"Part ID or Part Name is too long."
+        raise ValueError("Part ID or Part Name is too long.")
 
-    if price < 0 or stock < 0:
-        return False,"Negative values are not allowed."
+    price, stock = validate_price_and_stock(price, stock)
 
     part = get_part_by_part_id(old_part_id)
 
     if part is None:
-        return False,"Part is not found."
+        raise ValueError("Part is not found.")
 
     existing_part = db.session.execute(
         db.select(Parts).filter(Parts.part_id==new_part_id,Parts.id != part.id)
     ).scalars().first()
 
     if existing_part:
-        return False,f"Another part uses same part id : {new_part_id}"
+        raise ValueError(f"Another part uses the same Part ID: {new_part_id}")
 
     part.part_id = new_part_id
     part.part_name = part_name
@@ -104,17 +104,16 @@ def edit_part(old_part_id,new_part_id,part_name,price,stock):
         db.session.commit()
     except Exception:
         db.session.rollback()
+        raise
 
-    return True,"Part is successfully edited."
 
 def update_stock(part_id, new_stock):
     part = get_part_by_part_id(part_id=part_id.strip())
 
     if part is None:
-        return False, "Part not found."
+        raise ValueError("Part not found.")
 
-    if new_stock < 0:
-        return False, "Stock cannot be negative"
+    _, new_stock = validate_price_and_stock(stock=new_stock)
 
     part.stock = new_stock
 
@@ -124,13 +123,13 @@ def update_stock(part_id, new_stock):
         db.session.rollback()
         raise
 
-    return True,"Stock updated successfully."
+
 
 def delete_part(part_id):
     part = get_part_by_part_id(part_id=part_id.strip())
 
     if part is None:
-        return False,"Part is not found."
+        raise ValueError("Part is not found.")
 
     try:
         db.session.delete(part)
@@ -138,6 +137,6 @@ def delete_part(part_id):
     except Exception:
         db.session.rollback()
         raise
-    return True,"Part deleted successfully."
+
 
 

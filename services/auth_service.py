@@ -5,20 +5,20 @@ def register_user(username,password,registration_pin,correct_pin):
     username = username.strip()
 
     if not username or not password or not registration_pin:
-        return False, "All fields are required."
+        return ValueError("All Fields are required.")
 
     if not correct_pin:
-        return False, "Problem in configuration."
+        raise RuntimeError("Registration PIN is not configured.")
 
     if registration_pin != correct_pin:
-        return False , "Invalid Registration Pin"
+        raise ValueError("Invalid Registration PIN.")
 
     existing_user = db.session.execute(
         db.select(User).filter(User.username == username)
     ).scalar_one_or_none()
 
     if existing_user:
-        return False, "User is already existed."
+        raise ValueError("Username already exists.")
 
     hash_password = generate_password_hash(password)
 
@@ -34,10 +34,13 @@ def register_user(username,password,registration_pin,correct_pin):
         db.session.rollback()
         raise
 
-    return True, "Registration is Successsful"
+
 
 def authenticate_user(username,password):
     username = username.strip()
+
+    if not username or not password:
+        raise ValueError("Please complete the required fields.")
 
     user = db.session.execute(
         db.select(User).filter(User.username == username)
@@ -47,6 +50,7 @@ def authenticate_user(username,password):
         return None
 
     if not check_password_hash(user.password,password):
-        return None
+        raise ValueError("Incorrect username or password.")
+
 
     return user

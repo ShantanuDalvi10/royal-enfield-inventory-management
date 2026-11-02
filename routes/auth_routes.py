@@ -1,7 +1,7 @@
-from Functions.Authentication_Functions import register_user,authenticate_user
+from services.auth_service import register_user,authenticate_user
 from flask import Blueprint, current_app, flash ,redirect, render_template, request, url_for
 from flask_login import login_required, logout_user, login_user
-from Functions.dashboard_functions import get_all_parts
+
 
 
 auth = Blueprint("auth",__name__)
@@ -14,16 +14,17 @@ def register():
         registration_pin = request.form.get("registration_pin","")
 
         try:
-            success,message = register_user(
+            register_user(
                 username=username,
                 password=password,
                 registration_pin = registration_pin,
                 correct_pin=current_app.config.get("REGISTRATION_PIN")
             )
-            if success:
-                flash(message, "success")
-                return redirect(url_for("auth.login"))
-            flash(message, "error")
+            flash("Registration successful.", "success")
+            return redirect(url_for("auth.login"))
+
+        except ValueError as error:
+            flash(str(error), "error")
 
         except Exception:
             current_app.logger.exception("User registration failed")
@@ -39,19 +40,20 @@ def login():
         username = request.form.get("username","").strip()
         password = request.form.get("password","")
 
-        if not username or not password:
-            flash("Please Complete the required fields","error")
-            return render_template("login.html")
+        try:
+            user = authenticate_user(username,password)
 
-        user = authenticate_user(username,password)
+            login_user(user)
 
-        if user == None:
-            flash("Incorrect User or Password","error")
-            return render_template("login.html")
+            flash("successfully logged in","success")
+            return redirect(url_for("dash.dashboard"))
 
-        login_user(user)
-        flash("successfully logged in","success")
-        return redirect(url_for("auth.dashboard"))
+        except ValueError as error:
+            flash(str(error), "error")
+
+        except Exception:
+            current_app.logger.exception("User login failed")
+            flash("Login failed. Please try again.", "error")
 
     return render_template("login.html")
 
@@ -62,11 +64,7 @@ def logout():
     flash("successfully logged out","success")
     return redirect(url_for("auth.login"))
 
-@auth.route("/dashboard",methods=["GET","POST"])
-@login_required
-def dashboard():
-    parts = get_all_parts()
-    return render_template("dashboard.html",parts=parts)
+
 
 
 

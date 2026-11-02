@@ -2,7 +2,7 @@ from config import Config
 from models import db,User
 from flask import Flask,redirect,url_for
 from flask_login import LoginManager
-from routes.authorize_routes import auth
+from routes.auth_routes import auth
 from routes.dashboard_routes import dash
 
 

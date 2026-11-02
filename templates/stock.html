@@ -14,7 +14,7 @@
             </p>
         </div>
 
-        <a href="{{ url_for('auth.dashboard') }}"
+        <a href="{{ url_for('dash.dashboard') }}"
            class="btn btn-outline-secondary">
             Back to Dashboard
         </a>
@@ -63,6 +63,33 @@
                     </tbody>
 
                 </table>
+                 <nav aria-label="Stock inventory pages">
+                    <p class="text-center">
+                        Page {{ parts.page }} of {{ parts.pages }}
+                    </p>
+
+                    <ul class="pagination justify-content-center">
+
+                        {% if parts.has_prev %}
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="{{ url_for('dash.view_stock', page=parts.prev_num) }}">
+                                Previous
+                            </a>
+                        </li>
+                        {% endif %}
+
+                        {% if parts.has_next %}
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="{{ url_for('dash.view_stock', page=parts.next_num) }}">
+                                Next
+                            </a>
+                        </li>
+                        {% endif %}
+
+                    </ul>
+                </nav>
             </div>
 
         </div>
